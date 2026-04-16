@@ -1,3 +1,5 @@
+import sys
+
 # Código-fonte em "calculator language"
 # para análise léxica
 source : str = """
@@ -50,11 +52,86 @@ def analyze(source: str) -> None:
 
     # Função que aceita um lexema válido e o insere na tabela de símbolos
     def accept(ch: str, terminal: int) -> tuple[str, int]:
-        pass    # Vamos implementar isso depois
 
+        lex = lexeme if ch in BLANKS else lexeme + ch
+
+        match terminal:
+            case 1001:
+                symbols_table.append({
+                    "lexeme": lex,
+                    "token": "IDENTIFIER",
+                    "value": lex
+                })
+
+            case 1002 | 1003:
+                symbols_table.append({
+                    "lexeme": lex,
+                    "token": "KEYWORD",
+                    "value": lex
+                })
+
+            case 1004:
+                symbols_table.append({
+                    "lexeme": lex,
+                    "token": "NUMBER",
+                    "value": lex
+                })
+
+            case 1005:
+                symbols_table.append({
+                    "lexeme": lex,
+                    "token": "ASSIGN",
+                    "value": None
+                })
+            
+            case 1006:
+                symbols_table.append({
+                    "lexeme": lex,
+                    "token": "PLUS",
+                    "value": None
+                })
+            
+            case 1007:
+                symbols_table.append({
+                    "lexeme": lex,
+                    "token": "MINUS",
+                    "value": None
+                })
+
+            case 1008:
+                symbols_table.append({
+                    "lexeme": lex,
+                    "token": "TIMES",
+                    "value": None
+                })
+            
+            case 1009:
+                symbols_table.append({
+                    "lexeme": lex,
+                    "token": "DIV",
+                    "value": None
+                })
+            
+            case 1010: 
+                symbols_table.append({
+                    "lexeme": lex,
+                    "token": "LPAREN",
+                    "value": None
+                })
+            
+            case 1011:
+                symbols_table.append({
+                    "lexeme": lex,
+                    "token": "RPAREN",
+                    "value": None
+                })
+
+        return "", 0 
+    
     # Função que exibe um erro caso a análise léxica falhe
     def display_error(ch: str) -> None:
-        pass    # Também vamos implementar isso depois
+        print(f"ERROR[{row}:{col}]: unexpected character '{ch}' (state {state}))")
+        sys.exit(-1)
 
     pos = 0     # Posição atual de leitura dentro do código-fonte
     while pos < len(source):
@@ -163,6 +240,13 @@ def analyze(source: str) -> None:
                 if ch == "=":           lexeme, state = go_to_state(ch, 1005)
                 else:                   display_error(ch)
           
+        if ch != "\n": col += 1
+        pos += 1
 
+        print("--------------------- TABELA DE SÍMBOLOS ---------------------")
+        for symbol in symbols_table: print(symbol)
+
+if __name__ == "__main__":
+    analyze(source)
                 
 
