@@ -1,14 +1,19 @@
 import sys
 
-# Código-fonte em "calculator language"
-# para análise léxica
-source : str = """
-read a
-read b
-read c
-result := (a + b) * c
-write result
-"""
+# Abre o arquivo para ser analisado
+def open_file() -> str:
+    if len(sys.argv) < 2:
+        print("Forma de usar: python lexer.py <nome_arquivo>")
+        print("Nenhum nome de arquivo fornecido.")
+        sys.exit(-1)
+
+    filename = sys.argv[1]
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            return f.read()
+    except OSError as error:
+        print(error)
+        sys.exit(-1)
 
 # Caracteres considerados "em branco"
 BLANKS = {
@@ -52,7 +57,7 @@ def analyze(source: str) -> None:
 
     # Função que aceita um lexema válido e o insere na tabela de símbolos
     def accept(ch: str, terminal: int) -> tuple[str, int]:
-
+        # Se ch for um caractere BLANK, NÃO o adicionamos ao lexema
         lex = lexeme if ch in BLANKS else lexeme + ch
 
         match terminal:
@@ -83,14 +88,15 @@ def analyze(source: str) -> None:
                     "token": "ASSIGN",
                     "value": None
                 })
-            
+
+
             case 1006:
                 symbols_table.append({
                     "lexeme": lex,
                     "token": "PLUS",
                     "value": None
                 })
-            
+
             case 1007:
                 symbols_table.append({
                     "lexeme": lex,
@@ -104,21 +110,21 @@ def analyze(source: str) -> None:
                     "token": "TIMES",
                     "value": None
                 })
-            
+
             case 1009:
                 symbols_table.append({
                     "lexeme": lex,
                     "token": "DIV",
                     "value": None
                 })
-            
-            case 1010: 
+
+            case 1010:
                 symbols_table.append({
                     "lexeme": lex,
                     "token": "LPAREN",
                     "value": None
                 })
-            
+
             case 1011:
                 symbols_table.append({
                     "lexeme": lex,
@@ -126,12 +132,13 @@ def analyze(source: str) -> None:
                     "value": None
                 })
 
-        return "", 0 
-    
+        # Reseta o lexema e o estado
+        return "", 0
+
     # Função que exibe um erro caso a análise léxica falhe
     def display_error(ch: str) -> None:
-        print(f"ERROR[{row}:{col}]: unexpected character '{ch}' (state {state}))")
-        sys.exit(-1)
+        print(f"ERROR[{row}:{col}]: unexpected char '{ch}' (state {state}))")
+        sys.exit(-1)    # Sai com erro
 
     pos = 0     # Posição atual de leitura dentro do código-fonte
     while pos < len(source):
@@ -180,73 +187,73 @@ def analyze(source: str) -> None:
             case 40:
                 if is_alphanum(ch):     lexeme, state = go_to_state(ch, 50)
                 if ch in BLANKS:        lexeme, state = accept(ch, 1002)
-                else:                   display_error(ch)   
+                else:                   display_error(ch)  
 
-            case 50:   
-                if is_alphanum(ch):     lexeme, state = go_to_state(ch, 50)
-                if ch in BLANKS:        lexeme, state = accept(ch, 1001)
-                else:                   display_error(ch)
+            case 50:
+                if   is_alphanum(ch):    lexeme, state = go_to_state(ch, 50)
+                elif ch in BLANKS:       lexeme, state = accept(ch, 1001)    
+                else:                    display_error(ch)   
 
-            case 60:
-                if ch == "r":           lexeme, state = go_to_state(ch, 70)
-                elif is_alphanum(ch):   lexeme, state = go_to_state(ch, 50)
-                elif ch in BLANKS:      lexeme, state = accept(ch, 1001)
-                else:                   display_error(ch)
+            case 60: 
+                if   ch == "r":          lexeme, state = go_to_state(ch, 70)
+                elif is_alphanum(ch):    lexeme, state = go_to_state(ch, 50)
+                elif ch in BLANKS:       lexeme, state = accept(ch, 1001)       
+                else:                    display_error(ch)
 
             case 70:
-                if ch == "i":           lexeme, state = go_to_state(ch, 80)
-                elif is_alphanum(ch):   lexeme, state = go_to_state(ch, 50)
-                elif ch in BLANKS:      lexeme, state = accept(ch, 1001)
-                else:                   display_error(ch)
+                if   ch == "i":          lexeme, state = go_to_state(ch, 80)
+                elif is_alphanum(ch):    lexeme, state = go_to_state(ch, 50)
+                elif ch in BLANKS:       lexeme, state = accept(ch, 1001)       
+                else:                    display_error(ch)
 
-            case 80:
-                if ch == "t":           lexeme, state = go_to_state(ch, 90)
-                elif is_alphanum(ch):   lexeme, state = go_to_state(ch, 50)
-                elif ch in BLANKS:      lexeme, state = accept(ch, 1001)
-                else:                   display_error(ch)
+            case 80: 
+                if   ch == "t":          lexeme, state = go_to_state(ch, 90)
+                elif is_alphanum(ch):    lexeme, state = go_to_state(ch, 50)
+                elif ch in BLANKS:       lexeme, state = accept(ch, 1001)       
+                else:                    display_error(ch)
 
             case 90:
-                if ch == "e":           lexeme, state = go_to_state(ch, 100)
-                elif is_alphanum(ch):   lexeme, state = go_to_state(ch, 50)
-                elif ch in BLANKS:      lexeme, state = accept(ch, 1001)
-                else:                   display_error(ch)
-            
+                if   ch == "e":          lexeme, state = go_to_state(ch, 100)
+                elif is_alphanum(ch):    lexeme, state = go_to_state(ch, 50)
+                elif ch in BLANKS:       lexeme, state = accept(ch, 1001)       
+                else:                    display_error(ch)
+
             case 100:
-                if is_alphanum(ch):     lexeme, state = go_to_state(ch, 50)
-                if ch in BLANKS:        lexeme, state = accept(ch, 1003)
-                else:                   display_error(ch)
+                if   is_alphanum(ch):    lexeme, state = go_to_state(ch, 50)
+                elif ch in BLANKS:       lexeme, state = accept(ch, 1003)      
+                else:                    display_error(ch)
 
             case 110:
-                if is_digit(ch):        lexeme, state = go_to_state(ch, 110)
-                elif ch == ".":         lexeme, state = go_to_state(ch, 120)
-                elif ch in BLANKS:      lexeme, state = accept(ch, 1004)
-                else:                   display_error(ch)
-            
+                if   is_digit(ch):       lexeme, state = go_to_state(ch, 110)
+                elif ch == ".":          lexeme, state = go_to_state(ch, 120)   
+                elif ch in BLANKS:       lexeme, state = accept(ch, 1004)       
+                else:                    display_error(ch)
+
             case 120:
-                if is_digit(ch):        lexeme, state = go_to_state(ch, 120)
-                elif ch in BLANKS:      lexeme, state = accept(ch, 1004)
-                else:                   display_error(ch)
+                if   is_digit(ch):       lexeme, state = go_to_state(ch, 120)
+                elif ch in BLANKS:       lexeme, state = accept(ch, 1004)       
+                else:                    display_error(ch)
             
             case 130:
-                if is_digit(ch):        lexeme, state = go_to_state(ch, 140)
-                else:                   display_error(ch)
-            
-            case 140: 
-                if is_digit(ch):        lexeme, state = go_to_state(ch, 140)
-                elif ch in BLANKS:      lexeme, state = accept(ch, 1004)
-                else:                   display_error(ch)
-            
-            case 150:
-                if ch == "=":           lexeme, state = go_to_state(ch, 1005)
-                else:                   display_error(ch)
-          
-        if ch != "\n": col += 1
+                if   is_digit(ch):       lexeme, state = go_to_state(ch, 130)
+                elif ch in BLANKS:       lexeme, state = accept(ch, 1004)
+                else:                    display_error(ch)
+
+            case 150:   # ":" consumed
+                if   ch == "=":          lexeme, state = accept(ch, 1005)       
+                else:                    display_error(ch)   
+
+        # <~ CUIDADO COM A INDENTAÇÃO AQUI!
+        # Avança a contagem de colunas caso o caractere da vez NÃO seja
+        # um retorno de linha
+        if ch != "\r": col += 1
         pos += 1
 
-        print("--------------------- TABELA DE SÍMBOLOS ---------------------")
-        for symbol in symbols_table: print(symbol)
+    # Exibição da tabela de símbolos
+    print("----------------- TABELA DE SÍMBOLOS -----------------")
+    for symbol in symbols_table: print(symbol)      
 
+# Chama a função de análise ao executar o arquivo
 if __name__ == "__main__":
-    analyze(source)
-                
-
+    source = open_file()
+    analyze(source)  
